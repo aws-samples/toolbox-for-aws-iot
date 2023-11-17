@@ -1,0 +1,241 @@
+[
+    {
+        "input": {
+            "sql": "SELECT *, get_user_properties('deviceName') as deviceName from 'test/msg' WHERE age > 10",
+            "awsIotSqlVersion": "2016-03-23",
+            "message": {
+                "name": "John",
+                "age": 30,
+                "city": "New York"
+            },
+            "userProperties": [
+                {
+                    "deviceName": "alpha"
+                },
+                {
+                    "deviceCnt": "45"
+                }
+            ]
+        },
+        "result": {
+            "output": {
+                "name": "John",
+                "age": 30,
+                "city": "New York"
+            },
+            "input": {
+                "name": "John",
+                "age": 30,
+                "city": "New York"
+            },
+            "userProperties": [
+                {
+                    "deviceName": "alpha"
+                },
+                {
+                    "deviceCnt": "45"
+                }
+            ],
+            "mqttProperties": {}
+        }
+    },
+    {
+        "input": {
+            "sql": "SELECT * as message from 'test/msg' WHERE age > 10",
+            "awsIotSqlVersion": "2016-03-23",
+            "message": {
+                "name": "John",
+                "age": 30,
+                "city": "New York"
+            },
+            "userProperties": [
+                {
+                    "deviceName": "alpha"
+                },
+                {
+                    "deviceCnt": "45"
+                }
+            ]
+        },
+        "result": {
+            "output": {
+                "message": {
+                    "name": "John",
+                    "age": 30,
+                    "city": "New York"
+                }
+            },
+            "input": {
+                "name": "John",
+                "age": 30,
+                "city": "New York"
+            },
+            "userProperties": [
+                {
+                    "deviceName": "alpha"
+                },
+                {
+                    "deviceCnt": "45"
+                }
+            ],
+            "mqttProperties": {}
+        }
+    },
+    {
+        "input": {
+            "sql": "SELECT * as message from 'integtest/msg' WHERE age > 10",
+            "awsIotSqlVersion": "2016-03-23"
+        },
+        "result": {
+            "output": {
+                "message": {
+                    "name": "John",
+                    "age": 30,
+                    "city": "New York"
+                }
+            },
+            "input": {
+                "name": "John",
+                "age": 30,
+                "city": "New York"
+            }
+        }
+    },
+    {
+        "input": {
+            "sql": "SELECT * from 'test/msg' WHERE age > 30",
+            "awsIotSqlVersion": "2016-03-23",
+            "message": {
+                "name": "John",
+                "age": 30,
+                "city": "New York"
+            }
+        },
+        "result": {
+            "error": "States.Timeout",
+            "input": {
+                "name": "John",
+                "age": 30,
+                "city": "New York"
+            },
+            "userProperties": [],
+            "mqttProperties": {}
+        }
+    },
+    {
+        "input": {
+            "sql": "SEECT * from 'test/msg' WHERE age > 30",
+            "awsIotSqlVersion": "2016-03-23",
+            "message": {
+                "name": "John",
+                "age": 30,
+                "city": "New York"
+            }
+        },
+        "result": {
+            "error": "SqlParseException"
+        }
+    },
+    {
+        "input": {
+            "sql": "SELECT * from 'test/msg' WHERE age > 10",
+            "awsIotSqlVersion": "2016-03-23",
+            "message": {
+                "name": "John",
+                "age": 30,
+                "city": "New York"
+            },
+            "mqttProperties": {
+                "contentType": "application/json",
+                "payloadFormatIndicator": "UTF8_DATA",
+                "responseTopic": "test/msg/response",
+                "correlationData": "test",
+                "messageExpiry": 2023
+            }
+        },
+        "result": {
+            "output": {
+                "name": "John",
+                "age": 30,
+                "city": "New York"
+            },
+            "input": {
+                "name": "John",
+                "age": 30,
+                "city": "New York"
+            },
+            "userProperties": [],
+            "mqttProperties": {
+                "contentType": "application/json",
+                "payloadFormatIndicator": "UTF8_DATA",
+                "responseTopic": "test/msg/response",
+                "correlationData": "test",
+                "messageExpiry": 2023
+            }
+        }
+    },
+    {
+        "input": {
+            "sql": "SELECT * from 'integtest/msg' WHERE age > 10",
+            "awsIotSqlVersion": "2016-03-23"
+        },
+        "result": {
+            "output": {
+                "name": "John",
+                "age": 30,
+                "city": "New York"
+            },
+            "input": {
+                "name": "John",
+                "age": 30,
+                "city": "New York"
+            },
+            "userProperties": [
+                {
+                    "deviceName": "alpha"
+                },
+                {
+                    "deviceCnt": "45"
+                }
+            ],
+            "mqttProperties": {
+                "contentType": "application/json",
+                "payloadFormatIndicator": "UTF8_DATA",
+                "responseTopic": "test/msg/response",
+                "correlationData": "test"
+            }
+        }
+    },
+    {
+        "input": {
+            "sql": "SELECT * from 'integtest/msg' WHERE age > 30",
+            "awsIotSqlVersion": "2016-03-23"
+        },
+        "result": {
+            "error": "States.Timeout",
+            "input": {
+                "name": "John",
+                "age": 30,
+                "city": "New York"
+            }
+        }
+    },
+    {
+        "input": {
+            "sql": "SEECT * from 'integtest/msg' WHERE age > 30",
+            "awsIotSqlVersion": "2016-03-23"
+        },
+        "result": {
+            "error": "SqlParseException"
+        }
+    },
+    {
+        "input": {
+            "sql": "SELECT * from 'integtest/msg2' WHERE age > 10",
+            "awsIotSqlVersion": "2016-03-23"
+        },
+        "result": {
+            "error": "States.Timeout"
+        }
+    }
+]

@@ -1,0 +1,231 @@
+{
+  "StartAt": "Configure",
+  "States": {
+    "Configure": {
+      "Type": "Pass",
+      "ResultPath": "$.config",
+      "Parameters": {
+        "batchSize": ${batchSize},
+        "metadataTableName": "${metadataTableName}",
+        "recordingTableName": "${recordingTableName}",
+        "replayTableName": "${replayTableName}",
+        "deleteRecordingsLambdaArn": "${deleteRecordingsLambdaArn}",
+        "lastEvaluatedKeys": {
+          "recording": null,
+          "replay": null
+        }
+      },
+      "Next": "Update metadata status"
+    },
+    "Update metadata status": {
+      "Next": "Parallel",
+      "Type": "Task",
+      "ResultPath": null,
+      "Resource": "arn:aws:states:::aws-sdk:dynamodb:updateItem",
+      "Parameters": {
+        "TableName.$": "$.config.metadataTableName",
+        "Key": {
+          "recordingId": {
+            "S.$": "$.recordingId"
+          }
+        },
+        "UpdateExpression": "SET #status = :status",
+        "ExpressionAttributeNames": {
+          "#status": "status"
+        },
+        "ExpressionAttributeValues": {
+          ":status": {
+            "S": "DELETING"
+          }
+        }
+      }
+    },
+    "Parallel": {
+      "Type": "Parallel",
+      "Branches": [
+        {
+          "StartAt": "Fetch Replays",
+          "States": {
+            "Fetch Replays": {
+              "Type": "Task",
+              "ResultPath": "$.replayResults",
+              "Resource": "arn:aws:states:::aws-sdk:dynamodb:query",
+              "Parameters": {
+                "TableName.$": "$.config.replayTableName",
+                "KeyConditionExpression": "recordingId = :ri",
+                "ExpressionAttributeValues": {
+                  ":ri": {
+                    "S.$": "$.recordingId"
+                  }
+                },
+                "ProjectionExpression": "recordingId,replayId",
+                "ExclusiveStartKey.$": "$.config.lastEvaluatedKeys.replay",
+                "Limit.$": "$.config.batchSize"
+              },
+              "Next": "Replay items available?"
+            },
+            "Replay items available?": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Variable": "$.replayResults.Count",
+                  "NumericGreaterThan": 0,
+                  "Next": "Batch Delete Replays"
+                }
+              ],
+              "Default": "Delete replays finished"
+            },
+            "Batch Delete Replays": {
+              "Type": "Task",
+              "Next": "Replay LastEvaluatedKey exists?",
+              "Resource": "arn:aws:states:::lambda:invoke",
+              "Parameters": {
+                "FunctionName.$": "$.config.deleteRecordingsLambdaArn",
+                "Payload": {
+                  "table.$": "$.config.replayTableName",
+                  "items.$": "$.replayResults.Items"
+                }
+              },
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 6,
+                  "BackoffRate": 2
+                }
+              ],
+              "ResultPath": null
+            },
+            "Replay LastEvaluatedKey exists?": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Variable": "$.replayResults.LastEvaluatedKey",
+                  "IsPresent": true,
+                  "Next": "Update Replay ExclusiveStartKey"
+                }
+              ],
+              "Default": "Delete replays finished"
+            },
+            "Update Replay ExclusiveStartKey": {
+              "Type": "Pass",
+              "ResultPath": "$.config.lastEvaluatedKeys",
+              "Parameters": {
+                "replay.$": "$.replayResults.LastEvaluatedKey"
+              },
+              "Next": "Fetch Replays"
+            },
+            "Delete replays finished": {
+              "Type": "Succeed"
+            }
+          }
+        },
+        {
+          "StartAt": "Fetch Recordings",
+          "States": {
+            "Fetch Recordings": {
+              "Type": "Task",
+              "ResultPath": "$.recordingResults",
+              "Resource": "arn:aws:states:::aws-sdk:dynamodb:query",
+              "Parameters": {
+                "TableName.$": "$.config.recordingTableName",
+                "KeyConditionExpression": "recordingId = :ri",
+                "ExpressionAttributeValues": {
+                  ":ri": {
+                    "S.$": "$.recordingId"
+                  }
+                },
+                "ExpressionAttributeNames": {
+                  "#ts": "timestamp"
+                },
+                "ProjectionExpression": "recordingId,#ts",
+                "ExclusiveStartKey.$": "$.config.lastEvaluatedKeys.recording",
+                "Limit.$": "$.config.batchSize"
+              },
+              "Next": "Recording items available?"
+            },
+            "Recording items available?": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Variable": "$.recordingResults.Count",
+                  "NumericGreaterThan": 0,
+                  "Next": "Batch Delete Recordings"
+                }
+              ],
+              "Default": "Delete recordings finished"
+            },
+            "Batch Delete Recordings": {
+              "Type": "Task",
+              "Next": "Recording Last Evaluated Key exists?",
+              "Resource": "arn:aws:states:::lambda:invoke",
+              "Parameters": {
+                "FunctionName.$": "$.config.deleteRecordingsLambdaArn",
+                "Payload": {
+                  "table.$": "$.config.recordingTableName",
+                  "items.$": "$.recordingResults.Items"
+                }
+              },
+              "Retry": [
+                {
+                  "ErrorEquals": [
+                    "Lambda.ServiceException",
+                    "Lambda.AWSLambdaException",
+                    "Lambda.SdkClientException",
+                    "Lambda.TooManyRequestsException"
+                  ],
+                  "IntervalSeconds": 2,
+                  "MaxAttempts": 6,
+                  "BackoffRate": 2
+                }
+              ],
+              "ResultPath": null
+            },
+            "Recording Last Evaluated Key exists?": {
+              "Type": "Choice",
+              "Choices": [
+                {
+                  "Variable": "$.recordingResults.LastEvaluatedKey",
+                  "IsPresent": true,
+                  "Next": "Update Recording ExclusiveStartKey"
+                }
+              ],
+              "Default": "Delete recordings finished"
+            },
+            "Update Recording ExclusiveStartKey": {
+              "Type": "Pass",
+              "ResultPath": "$.config.lastEvaluatedKeys",
+              "Parameters": {
+                "recording.$": "$.recordingResults.LastEvaluatedKey"
+              },
+              "Next": "Fetch Recordings"
+            },
+            "Delete recordings finished": {
+              "Type": "Succeed"
+            }
+          }
+        }
+      ],
+      "Next": "Delete metadata record",
+      "ResultPath": null
+    },
+    "Delete metadata record": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::dynamodb:deleteItem",
+      "Parameters": {
+        "TableName.$": "$.config.metadataTableName",
+        "Key": {
+          "recordingId": {
+            "S.$": "$.recordingId"
+          }
+        }
+      },
+      "End": true
+    }
+  }
+}

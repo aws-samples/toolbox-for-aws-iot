@@ -1,0 +1,8 @@
+{
+  "short_name": "Toolbox for AWS IoT",
+  "name": "Toolbox for AWS IoT",
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}

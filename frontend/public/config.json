@@ -1,0 +1,9 @@
+{
+  "random": "ec1f38fe-e7d3-4d65-9424-144cddbc3c8a",
+  "region": "eu-central-1",
+  "identityPoolId": "eu-central-1:c11a1b51-5ae6-443b-a19e-46ef078f311c",
+  "userPoolId": "eu-central-1_GlSmIp9qC",
+  "userPoolDomain": "iottoolboxasd-930619945771",
+  "userPoolWebClientId": "6oasagqammsp95e8p4vlv8eiub",
+  "apiEndpoint": "https://vit4l2tnkc.execute-api.eu-central-1.amazonaws.com/prod/"
+}
