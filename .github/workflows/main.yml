@@ -1,0 +1,15 @@
+name: Synthesize cdk stack
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+jobs:
+  aws_cdk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: cdk synth
+        id: synth
+        uses: youyo/aws-cdk-github-actions@v2
+        with:
+          cdk_subcommand: 'synth -c region=eu-central-1'
+          actions_comment: true
