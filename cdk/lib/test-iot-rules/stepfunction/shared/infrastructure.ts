@@ -12,6 +12,10 @@ import { ToolboxLambdaFunction } from '../../../common/toolbox-lambda-function'
 import { TOOLBOX_ERROR_TOPIC, TOOLBOX_IOT_RULE_PREFIX } from '../../../constants'
 import path = require('path');
 
+export interface SharedRuleProcessingConstructsProps {
+  ruleRoleArns: string[]
+}
+
 export class SharedRuleProcessingConstructs extends Construct {
   readonly receiveMessageLambda: lambda.Function
   readonly createIngestRuleLambda: lambda.Function
@@ -20,7 +24,7 @@ export class SharedRuleProcessingConstructs extends Construct {
   readonly publishMessageLambdaRole: iam.Role
   readonly createRuleLambdaRole: iam.Role
 
-  constructor (scope: Construct, id: string) {
+  constructor (scope: Construct, id: string, props: SharedRuleProcessingConstructsProps) {
     super(scope, id)
     const receiveMessageRole = new iam.Role(this, 'ReceiveMessageRole', {
       assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com')
@@ -91,10 +95,19 @@ export class SharedRuleProcessingConstructs extends Construct {
     )
     this.createRuleLambdaRole.addToPolicy(
       new iam.PolicyStatement({
-        resources: [this.publishMessageLambdaRole.roleArn],
+        resources: [this.publishMessageLambdaRole.roleArn].concat(props.ruleRoleArns),
         actions: ['iam:PassRole']
       })
     )
+    // if (props.ruleRoleArns.length > 0) {
+    //   console.log("FUUU")
+    //   this.createRuleLambdaRole.addToPolicy(
+    //     new iam.PolicyStatement({
+    //       resources: props.ruleRoleArns,
+    //       actions: ['iam:PassRole']
+    //     })
+    //   )
+    // }
     this.createRuleLambdaRole.addToPolicy(
       new iam.PolicyStatement({
         resources: ['*'],

@@ -22,6 +22,7 @@ export interface IotToolboxProps extends cdk.StackProps {
   enableS3Logging: boolean;
   enableCloudFrontLogging: boolean;
   enableVpcLogging: boolean;
+  ruleRoleArns: string[]
   initialUserEmail?: string;
   cloudfrontWafStack?: CloudfrontWafStack;
 }
@@ -43,7 +44,7 @@ export class IotToolbox extends cdk.Stack {
     const waf = props?.enableWAF ? new WafConstruct(this, 'WAF', { scope: 'REGIONAL' }) : undefined
     this.s3AccessLoggingConstruct = props?.enableS3Logging ? new S3AccessLoggingConstruct(this, 'S3Logs') : undefined
 
-    this.testIotRulesConstruct = new TestIotRulesConstruct(this, 'TestIotRules')
+    this.testIotRulesConstruct = new TestIotRulesConstruct(this, 'TestIotRules', { ruleRoleArns: props?.ruleRoleArns || [] })
     this.recordMessagesConstruct = new RecordMessagesConstruct(this, 'RecordMessages')
     this.replayMessagesConstruct = new ReplayMessagesConstruct(this, 'ReplayMessages', {
       metaDataTable: this.recordMessagesConstruct.metaDataTable,
