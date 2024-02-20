@@ -99,15 +99,6 @@ export class SharedRuleProcessingConstructs extends Construct {
         actions: ['iam:PassRole']
       })
     )
-    // if (props.ruleRoleArns.length > 0) {
-    //   console.log("FUUU")
-    //   this.createRuleLambdaRole.addToPolicy(
-    //     new iam.PolicyStatement({
-    //       resources: props.ruleRoleArns,
-    //       actions: ['iam:PassRole']
-    //     })
-    //   )
-    // }
     this.createRuleLambdaRole.addToPolicy(
       new iam.PolicyStatement({
         resources: ['*'],
