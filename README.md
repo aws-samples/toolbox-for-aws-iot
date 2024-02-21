@@ -57,7 +57,7 @@ cd cdk
 npm install
 npx cdk deploy --all -c initialUserEmail=<your email address> -c region=<region>
 ```
-> Please see the section on [AWS IoT Rule functions which call other AWS services](#aws-iot-rule-sql-functions) if you intend to use those
+> If you intend to test [IoT functions](https://docs.aws.amazon.com/iot/latest/developerguide/iot-sql-functions.html) which require to pass an ARN of an IAM role via the Toolbox please see the section on [AWS IoT Rule functions which call other AWS services](#aws-iot-rule-sql-functions) 
 
 In case you want to deploy the solution without the frontend (e.g. while customizing the CDK stack), run
 ```
@@ -196,7 +196,7 @@ In case you already have controls in place (e.g. AWS WAF), your organizations po
 | AWS WAF - CloudFront           | Enables WAF with the Common Rule Set and the IP Reputation List on CloudFront              | ❌                  | `enableCloudFrontWAF`     | `TOOLBOX_ENABLE_CLOUDFRONT_WAF`     | [AWS WAF](https://docs.aws.amazon.com/en_en/waf/latest/developerguide/waf-chapter.html)                                                            |
 
 ### AWS IoT Rule SQL functions
-AWS IoT Rule SQL provides several functions which allow you to retrieve data from other AWS services, such as `get_thing_shadow` or `get_dyanmodb`.
+AWS IoT Rule SQL provides several [functions](https://docs.aws.amazon.com/iot/latest/developerguide/iot-sql-functions.html) which allow you to retrieve data from other AWS services, such as `get_thing_shadow` or `get_dyanmodb`.
 These functions expect the ARN of an IAM role, which grants the rules engine permission to invoke the service, as a parameter. For example,
 for `get_dynamodb` you need to provide a role which allows `dynamodb:GetItem`. For security reasons the Toolbox for AWS IoT cannot
 create the those roles itself during deployment as the permission scope would be too broad. 
