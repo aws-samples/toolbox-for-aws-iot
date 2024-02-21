@@ -34,6 +34,8 @@ const enableS3Logging = getBoolean(process.env.TOOLBOX_ENABLE_S3_LOGGING || app.
 const enableCloudFrontLogging = getBoolean(process.env.TOOLBOX_ENABLE_CLOUDFRONT_LOGGING || app.node.tryGetContext('enableCloudFrontLogging'))
 const enableVpcLogging = getBoolean(process.env.TOOLBOX_ENABLE_VPC_LOGGING || app.node.tryGetContext('enableVpcLogging'))
 const region = ((process.env.TOOLBOX_REGION || app.node.tryGetContext('region')) as string) || undefined
+const ruleRoleArnsString = ((process.env.TOOLBOX_RULE_ROLE_ARNS || app.node.tryGetContext('ruleRoleArns')) as string) || undefined
+const ruleRoleArns = ruleRoleArnsString ? ruleRoleArnsString.split(',') : []
 
 if (enableCloudFrontWAF && !region) {
   console.error('When enabling WAF for CloudFront, you explicitly need to specify the deployment region for the Toolbox for AWS IoT. Please set the "TOOLBOX_REGION" environment variable or pass the region as CDK context variable "-c region=<region>"')
@@ -64,6 +66,7 @@ const toolboxStack = new IotToolbox(app, 'IotToolbox', {
   enableS3Logging,
   enableVpcLogging,
   enableWAF,
+  ruleRoleArns,
   initialUserEmail,
   cloudfrontWafStack,
   crossRegionReferences: true,

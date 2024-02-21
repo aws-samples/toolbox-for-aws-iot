@@ -57,6 +57,7 @@ cd cdk
 npm install
 npx cdk deploy --all -c initialUserEmail=<your email address> -c region=<region>
 ```
+> Please see the section on [AWS IoT Rule functions which call other AWS services](#aws-iot-rule-sql-functions) if you intend to use those
 
 In case you want to deploy the solution without the frontend (e.g. while customizing the CDK stack), run
 ```
@@ -193,6 +194,59 @@ In case you already have controls in place (e.g. AWS WAF), your organizations po
 | Amazon VPC Flow Logs           | Logs all VPC traffic of the message replay cluster VPC to CloudWatch                       | ✅                  | `enableVpcLogging`        | `TOOLBOX_ENABLE_VPC_LOGGING`        | [VPC Flow logs](https://docs.aws.amazon.com/en_en/vpc/latest/userguide/flow-logs.html)                                                             |
 | AWS WAF                        | Enables WAF with the Common Rule Set and the IP Reputation List on API Gateway and Cognito | ✅                  | `enableWAF`               | `TOOLBOX_ENABLE_WAF`                | [AWS WAF](https://docs.aws.amazon.com/en_en/waf/latest/developerguide/waf-chapter.html)                                                            |
 | AWS WAF - CloudFront           | Enables WAF with the Common Rule Set and the IP Reputation List on CloudFront              | ❌                  | `enableCloudFrontWAF`     | `TOOLBOX_ENABLE_CLOUDFRONT_WAF`     | [AWS WAF](https://docs.aws.amazon.com/en_en/waf/latest/developerguide/waf-chapter.html)                                                            |
+
+### AWS IoT Rule SQL functions
+AWS IoT Rule SQL provides several functions which allow you to retrieve data from other AWS services, such as `get_thing_shadow` or `get_dyanmodb`.
+These functions expect the ARN of an IAM role, which grants the rules engine permission to invoke the service, as a parameter. For example,
+for `get_dynamodb` you need to provide a role which allows `dynamodb:GetItem`. For security reasons the Toolbox for AWS IoT cannot
+create the those roles itself during deployment as the permission scope would be too broad. 
+
+If you want to use those functions you need to create the respective roles and provide their ARNs during deployment time of the Toolbox for AWS IoT.
+To do this, 
+- create an IAM role which can be assumed by AWS IoT and contains the required permissions (see the example below)
+- (re-)deploy the Toolbox for AWS IoT with the role ARN(s) passed as parameter, separated by a comma:
+  ```
+  npx cdk deploy --all -c initialUserEmail=<your email address> -c region=<region> -c ruleRoleArns=arn:aws:iam::<account-id>:role/<role1>,arn:aws:iam::<account-id>:role/<role2>
+  ```
+
+
+
+Here is an example policy and trust policy which allows the rules engine to query for thing shadows
+
+_Trust policy_
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "",
+            "Effect": "Allow",
+            "Principal": {
+                "Service": "iot.amazonaws.com"
+            },
+            "Action": "sts:AssumeRole"
+        }
+    ]
+}
+```
+_Permission policy_
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "Statement1",
+      "Effect": "Allow",
+      "Action": [
+        "iot:GetThingShadow"
+      ],
+      "Resource": [
+        "*"
+      ]
+    }
+  ]
+}
+```
 
 
 ## Cleanup
