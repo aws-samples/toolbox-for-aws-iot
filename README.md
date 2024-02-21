@@ -248,7 +248,7 @@ _Permission policy_
 ```
 
 ### AWS IoT Rule SQL Lambda
-AWS IoT can invoke a Lambda function on the MQTT message for advanced processing. If you want to invoke a Lambda function, you must grant AWS IoT `lambda:InvokeFunction` permissions to invoke the specified Lambda function. As part of each IoT SQL statements test run the Toolbox creates a temporary IoT rule with the name prefix `iottoolbox_ingest_`. The [documentation to call a Lambda](https://docs.aws.amazon.com/iot/latest/developerguide/iot-sql-functions.html#iot-func-aws-lambda) shows a more detailed overview.
+AWS IoT can invoke a Lambda function on the MQTT message for advanced processing. If you want to invoke a Lambda function, you must grant AWS IoT `lambda:InvokeFunction` permissions to invoke the specified Lambda function. As part of each IoT SQL statements test run the Toolbox creates a temporary IoT rule with the name prefix `iottoolbox_ingest_` followed by a unique id. The IoT rule needs to be referenced as source ARN as part of the permission policy of the Lambda function. The [documentation how to call a Lambda function](https://docs.aws.amazon.com/iot/latest/developerguide/iot-sql-functions.html#iot-func-aws-lambda) shows a more detailed overview.
 
 Here is an example to how to grant the `lambda:InvokeFunction` permission using the AWS CLI:
 ```
