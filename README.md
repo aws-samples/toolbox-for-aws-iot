@@ -20,6 +20,7 @@ Toolbox for AWS IoT offers developers a reliable way to validate and optimize Io
 
 The result of the IoT SQL statement is than displayed next to the provided input.
 
+> If you intend to use [IoT functions](https://docs.aws.amazon.com/iot/latest/developerguide/iot-sql-functions.html) which require to pass an ARN of an IAM role via the Toolbox please see the section on [AWS IoT Rule functions which call other AWS services](#aws-iot-rule-sql-functions) and if you intend to invoke a Lambda function as part of your IoT SQL statement see section [AWS IoT Rule functions which invoke Lambda functions](#aws-iot-rule-sql-lambda) 
 ### Record and replay messages
 <p float="left">
   <img src="img/record_replay_message/screenshot_record_message.png" width="49%" />
@@ -209,8 +210,6 @@ To do this,
   npx cdk deploy --all -c initialUserEmail=<your email address> -c region=<region> -c ruleRoleArns=arn:aws:iam::<account-id>:role/<role1>,arn:aws:iam::<account-id>:role/<role2>
   ```
 
-
-
 Here is an example policy and trust policy which allows the rules engine to query for thing shadows
 
 _Trust policy_
@@ -248,6 +247,19 @@ _Permission policy_
 }
 ```
 
+### AWS IoT Rule SQL Lambda
+AWS IoT can invoke a Lambda function on the MQTT message for advanced processing. If you want to invoke a Lambda function, you must grant AWS IoT `lambda:InvokeFunction` permissions to invoke the specified Lambda function. As part of each IoT SQL statements test run the Toolbox creates a temporary IoT rule with the name prefix `iottoolbox_ingest_`. The [documentation to call a Lambda](https://docs.aws.amazon.com/iot/latest/developerguide/iot-sql-functions.html#iot-func-aws-lambda) shows a more detailed overview.
+
+Here is an example to how to grant the `lambda:InvokeFunction` permission using the AWS CLI:
+```
+aws lambda add-permission --function-name "function_name"
+--region "region"
+--principal iot.amazonaws.com 
+--source-arn arn:aws:iot:eu-central-1:account_id:rule/iottoolbox_ingest_*
+--source-account "account_id"
+--statement-id "unique_id" 
+--action "lambda:InvokeFunction"
+```
 
 ## Cleanup
 1) Empty the Amazon S3 bucket created as part of the CDK stack.
