@@ -5,6 +5,14 @@ Toolbox for AWS IoT streamlines the process of developing IoT applications. It p
 > **Warning**
 > This example is for experimental purposes only and is not production ready. The deployment of this sample can incur costs. Please ensure to remove infrastructure via the provided commands when not needed anymore.
 
+<div align="center">
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=gXf468OqETk
+" target="_blank"><img src="http://img.youtube.com/vi/gXf468OqETk/0.jpg" 
+alt="YouTube Video" width="50%" border="10" /></a> 
+    
+Video on the AWS IoT YouTube Channel explaining the Toolbox for AWS IoT
+</div>
+
 ## Features
 
 Toolbox for AWS IoT has two key features. The testing of SQL statements of Rules for AWS IoT and the recording and replaying of messages of AWS IoT Core.
