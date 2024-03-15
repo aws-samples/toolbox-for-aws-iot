@@ -72,7 +72,8 @@ const toolboxStack = new IotToolbox(app, 'IotToolbox', {
   crossRegionReferences: true,
   env: {
     region
-  }
+  },
+  description: 'This template deploys the Toolbox for AWS IoT (uksb-1tupboc61)'
 })
 
 configureCdkNag(app, toolboxStack, deployFrontend)
