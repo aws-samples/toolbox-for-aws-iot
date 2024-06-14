@@ -31,6 +31,7 @@ export function configureCdkNag (app: cdk.App, toolboxStack: IotToolbox, deployF
     { id: 'AwsSolutions-CFR3', reason: 'Suppress disallowed use of CloudFront without access logging for increased simplicity and cost-effectiveness as this is a sample.' },
     { id: 'AwsSolutions-CFR4', reason: 'Suppress disallowed us of the default CloudFront viewer certificate since this is a sample and we can not create a certificate for an unknown domain name' },
     { id: 'AwsSolutions-DDB3', reason: 'Suppress warning of PITR not being enabled for DynamoDB. PITR is not required as this is a sample.' },
+    { id: 'AwsSolutions-L1', reason : 'Suppress error caused by python_3_12'},
     {
       id: 'AwsSolutions-IAM5',
       reason: 'Suppress disallowed use of wildcards in IAM policies as all policies are scoped to resources with a specific prefix (e.g. "iottoolbox")',
