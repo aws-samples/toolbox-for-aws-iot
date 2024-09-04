@@ -9,8 +9,8 @@
   "author": "",
   "license": "Apache-2.0",
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.370.0",
-    "@aws-sdk/client-iot-data-plane": "^3.370.0",
+    "@aws-sdk/client-dynamodb": "^3.637.0",
+    "@aws-sdk/client-iot-data-plane": "^3.637.0",
     "@aws-sdk/util-dynamodb": "^3.370.0",
     "@aws-sdk/lib-dynamodb": "^3.370.0",
     "express": "^4.19.2"
