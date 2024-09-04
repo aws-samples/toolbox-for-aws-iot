@@ -4,33 +4,39 @@
  */
 
 import "./App.css";
-import {AppLayout, ContentLayout} from "@cloudscape-design/components";
-import React, {useEffect, useRef, useState} from "react";
-import {TestRuleContent} from "./pages/test-iot-rule/test-rule-page";
-import {ReplayMessageContent} from "./pages/replay-messages/replay-message-page";
-import {RecordMessageContent} from "./pages/record-messages/record-message-page";
-import {Authenticator} from "@aws-amplify/ui-react";
-import {InfoLink} from "./components/info-link";
+import { AppLayout, ContentLayout } from "@cloudscape-design/components";
+import React, { useEffect, useRef, useState } from "react";
+import { TestRuleContent } from "./pages/test-iot-rule/test-rule-page";
+import { ReplayMessageContent } from "./pages/replay-messages/replay-message-page";
+import { RecordMessageContent } from "./pages/record-messages/record-message-page";
+import { Authenticator } from "@aws-amplify/ui-react";
+import { useAuthenticator } from "@aws-amplify/ui-react";
+import { InfoLink } from "./components/info-link";
 import Header from "@cloudscape-design/components/header";
 import BreadcrumbGroup from "@cloudscape-design/components/breadcrumb-group";
 import ToolsContent from "./components/tools-content";
 
 //import {DashboardSideNavigation} from "./components/side-navigation";
 //import { Navigation } from "./components/side-navigation";
-import {Route, Routes, useLocation} from "react-router-dom";
-import {DashboardSideNavigation} from "./components/side-navigation";
-import {ServiceTopNavigation} from "./components/top-navigation";
-import {RequireAuth} from "./components/require-auth";
-import {Login} from "./components/login";
+import { Route, Routes, useLocation } from "react-router-dom";
+import { DashboardSideNavigation } from "./components/side-navigation";
+import { ServiceTopNavigation } from "./components/top-navigation";
+import { RequireAuth } from "./components/require-auth";
+import { Login } from "./components/login";
 
-import {AmplifyConfig as config} from "./Config";
-import {Amplify} from "aws-amplify";
+import { AmplifyConfig as config } from "./Config";
+import { Amplify } from "aws-amplify";
 import { StartReplayContent } from "./pages/start-replay/start-replay-page";
 
 Amplify.configure(config);
 
-function PageHeader({loadHelpPanelContent, index, setToolsIndex}) {
-  const location = useLocation()
+function PageHeader({
+  loadHelpPanelContent,
+  index,
+  setToolsIndex,
+  authStatus,
+}) {
+  const location = useLocation();
   const [items, setItems] = useState([]);
   const [header, setHeader] = useState("Toolbox for AWS IoT");
 
@@ -41,11 +47,11 @@ function PageHeader({loadHelpPanelContent, index, setToolsIndex}) {
 
     if (currentRoute === "/replay") {
       header = "Replay MQTT Messages";
-      toolsIndex = 2
+      toolsIndex = 2;
     } else if (currentRoute === "/replay/start") {
       header = "Start new replay";
       toolsIndex = 3;
-    }else if (currentRoute === "/record") {
+    } else if (currentRoute === "/record") {
       header = "Record MQTT Messages";
       toolsIndex = 1;
     } else {
@@ -55,36 +61,37 @@ function PageHeader({loadHelpPanelContent, index, setToolsIndex}) {
     setToolsIndex(toolsIndex);
     if (toolsIndex === 3) {
       setItems([
-        {text: "Toolbox for AWS IoT", href: "/"},
-        {text: "Replay MQTT Messages", href: "/#/replay"},
-        {text: header, href: currentRoute},
+        { text: "Toolbox for AWS IoT", href: "/" },
+        { text: "Replay MQTT Messages", href: "/#/replay" },
+        { text: header, href: currentRoute },
       ]);
     } else {
       setItems([
-        {text: "Toolbox for AWS IoT", href: "/"},
-        {text: header, href: currentRoute},
+        { text: "Toolbox for AWS IoT", href: "/" },
+        { text: header, href: currentRoute },
       ]);
     }
 
     setHeader(header);
   }, [location]);
-
-  return (
-    <div>
-      <BreadcrumbGroup items={items} ariaLabel="Breadcrumbs"/>
-      <Header
-        variant="h1"
-        info={
-          <InfoLink
-            id="form-main-info-link"
-            onFollow={() => loadHelpPanelContent(index)}
-          />
-        }
-      >
-        {header}
-      </Header>
-    </div>
-  );
+  if (authStatus === "authenticated") {
+    return (
+      <div>
+        <BreadcrumbGroup items={items} ariaLabel="Breadcrumbs" />
+        <Header
+          variant="h1"
+          info={
+            <InfoLink
+              id="form-main-info-link"
+              onFollow={() => loadHelpPanelContent(index)}
+            />
+          }
+        >
+          {header}
+        </Header>
+      </div>
+    );
+  }
 }
 
 function Content() {
@@ -92,6 +99,7 @@ function Content() {
   const [toolsOpen, setToolsOpen] = useState(false);
   const appLayout = useRef();
   const [navigationOpen, setNavigationOpen] = useState(false);
+  const { authStatus } = useAuthenticator((context) => [context.authStatus]);
 
   const loadHelpPanelContent = (index) => {
     setToolsIndex(index);
@@ -109,6 +117,7 @@ function Content() {
               loadHelpPanelContent={loadHelpPanelContent}
               index={toolsIndex}
               setToolsIndex={setToolsIndex}
+              authStatus={authStatus}
             />
           }
         >
@@ -117,7 +126,7 @@ function Content() {
               index
               element={
                 <RequireAuth>
-                  <TestRuleContent/>
+                  <TestRuleContent />
                 </RequireAuth>
               }
             />
@@ -125,7 +134,7 @@ function Content() {
               path="record"
               element={
                 <RequireAuth>
-                  <RecordMessageContent/>
+                  <RecordMessageContent />
                 </RequireAuth>
               }
             />
@@ -133,7 +142,7 @@ function Content() {
               path="replay"
               element={
                 <RequireAuth>
-                  <ReplayMessageContent/>
+                  <ReplayMessageContent />
                 </RequireAuth>
               }
             />
@@ -141,20 +150,21 @@ function Content() {
               path="replay/start"
               element={
                 <RequireAuth>
-                  <StartReplayContent/>
+                  <StartReplayContent />
                 </RequireAuth>
               }
             />
-            <Route path="login" element={<Login/>}/>
+            <Route path="login" element={<Login />} />
           </Routes>
         </ContentLayout>
       }
-      navigation={<DashboardSideNavigation/>}
+      navigation={<DashboardSideNavigation />}
+      navigationHide={authStatus !== "authenticated"}
       navigationOpen={navigationOpen}
       tools={ToolsContent[toolsIndex]}
       toolsOpen={toolsOpen}
-      onToolsChange={({detail}) => setToolsOpen(detail.open)}
-      onNavigationChange={({detail}) => setNavigationOpen(detail.open)}
+      onToolsChange={({ detail }) => setToolsOpen(detail.open)}
+      onNavigationChange={({ detail }) => setNavigationOpen(detail.open)}
       maxContentWidth={Number.MAX_VALUE}
     />
   );
@@ -163,8 +173,8 @@ function Content() {
 function App() {
   return (
     <Authenticator.Provider>
-      <ServiceTopNavigation/>
-      <Content/>
+      <ServiceTopNavigation />
+      <Content />
     </Authenticator.Provider>
   );
 }
